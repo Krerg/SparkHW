@@ -10,13 +10,14 @@ repositories {
 }
 apply plugin :'scala'
 
+compileScala.targetCompatibility = 1.8
+ScalaCompileOptions.metaClass.useAnt = false
+
 
 dependencies {
     compile group: 'org.scala-lang', name: 'scala-library', version: "$scalaVersion"
     compile group: 'org.apache.spark', name: "spark-sql_$scalaCompatVersion", version: "$sparkVersion"
     compile group: 'org.apache.spark', name: "spark-core_$scalaCompatVersion", version: "$sparkVersion"
+    testCompile group: 'com.holdenkarau', name: 'spark-testing-base_2.11', version: '2.3.0_0.9.0'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '5.0'
-}
