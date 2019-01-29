@@ -9,15 +9,20 @@ object MostPopularCountryWhereHotelsAndSearchedFromSameCountry {
   def main(args: Array[String]): Unit = {
     if (args.length == 0) {
       println("You should specify filename")
-      return;
+      return
     }
+    // Spark init
     val conf = new SparkConf().setAppName("Top3HotelsWherePeopleWithChildrenWereInterestedButNotBooked").setMaster("local[*]")
     val sc = new SparkContext(conf)
     val spark = org.apache.spark.sql.SparkSession.builder
       .master("local")
       .appName("Spark CSV Reader")
       .getOrCreate
+
+    // Query the csv to get result
     val mostPopularHotel = doQuery(spark, args(0))
+
+    // Show the result
     if (mostPopularHotel.isEmpty) {
       println("There is no such hotel")
     } else {
@@ -26,6 +31,14 @@ object MostPopularCountryWhereHotelsAndSearchedFromSameCountry {
     sc.stop()
   }
 
+  /**
+    * Queries the csv file.
+    *
+    * @param spark spark's session
+    * @param file path to the csv file
+    * @return row with most popular country where hotels and searched from same country
+    *         or empty array if there is now such booking
+    */
   def doQuery(spark: SparkSession, file: String): Array[Row] = {
     if(file == null || file.isEmpty) {
       return null
