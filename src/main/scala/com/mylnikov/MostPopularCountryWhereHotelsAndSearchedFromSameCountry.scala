@@ -44,7 +44,16 @@ object MostPopularCountryWhereHotelsAndSearchedFromSameCountry {
       return null
     }
     val hotels = spark.read.format("csv").option("header", "true").option("mode", "DROPMALFORMED").option("delimiter",",").load(file)
-    val mostPopularHotel = hotels.where("is_booking = 1").where("hotel_country = user_location_country").groupBy("hotel_country").count().as("n")
+    val mostPopularHotel = hotels
+      // Where booking is successful
+      .where("is_booking = 1")
+      // User's and hotel's country are same
+      .where("hotel_country = user_location_country")
+      // Group by country
+      .groupBy("hotel_country")
+      // Count such countries
+      .count().as("n")
+      // Show the result
       .orderBy(desc("n.count")).limit(1).collect()
     return mostPopularHotel
   }

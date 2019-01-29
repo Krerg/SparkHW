@@ -44,11 +44,15 @@ object Top3HotelsWherePeopleWithChildrenWereInterestedButNotBooked {
     }
     val hotels = spark.read.format("csv").option("header", "true").option("mode", "DROPMALFORMED").option("delimiter",",").load(file)
     val top3PopularHotels = hotels
-      //
+      // People with children
       .where("srch_children_cnt > 0")
+      // Hotel wasn't booked
       .where("is_booking = 0")
+      // Group by hotel
       .groupBy("hotel_continent", "hotel_country", "hotel_market")
+      // Count such hotels
       .count().as("n")
+      //
       .orderBy(desc("n.count")).limit(3).collect()
     return top3PopularHotels
   }
