@@ -24,10 +24,9 @@ object MostPopularCountryWhereHotelsAndSearchedFromSameCountry {
       mostPopularHotel.show()
 
       spark.stop()
+    } else {
+      println("You should specify filename")
     }
-
-    println("You should specify filename")
-
   }
 
   /**

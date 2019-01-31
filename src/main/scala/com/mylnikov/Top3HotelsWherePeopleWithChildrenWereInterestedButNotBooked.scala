@@ -23,10 +23,9 @@ object Top3HotelsWherePeopleWithChildrenWereInterestedButNotBooked {
       // Show the result
       top3PopularHotels.show()
       spark.stop()
+    } else {
+      println("You should specify filename")
     }
-
-    println("You should specify filename")
-
   }
 
   /**

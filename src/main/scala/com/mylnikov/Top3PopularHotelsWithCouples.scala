@@ -10,7 +10,7 @@ import org.apache.spark.sql.functions._
 object Top3PopularHotelsWithCouples {
 
   def main(args: Array[String]): Unit = {
-    if (args.length == 0) {
+    if (args.length > 0) {
       // Spark init
       val spark = org.apache.spark.sql.SparkSession.builder
         .master("local[*]")
@@ -23,10 +23,9 @@ object Top3PopularHotelsWithCouples {
       // Show the result
       top3PopularHotels.show()
       spark.stop()
+    } else {
+      println("You should specify filename")
     }
-
-    println("You should specify filename")
-
   }
 
   /**
