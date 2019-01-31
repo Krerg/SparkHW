@@ -1,50 +1,51 @@
 package com.mylnikov
 
-import org.apache.spark.sql.{Row, SparkSession}
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 import org.apache.spark.sql.functions.desc
 
+/**
+  * Calculates the most popular country where hotels and searched are from same country.
+  * It takes csv as input and output would be printed in the console.
+  */
 object MostPopularCountryWhereHotelsAndSearchedFromSameCountry {
 
   def main(args: Array[String]): Unit = {
-    if (args.length == 0) {
-      println("You should specify filename")
-      return
-    }
-    // Spark init
-    val conf = new SparkConf().setAppName("Top3HotelsWherePeopleWithChildrenWereInterestedButNotBooked").setMaster("local[*]")
-    val sc = new SparkContext(conf)
-    val spark = org.apache.spark.sql.SparkSession.builder
-      .master("local")
-      .appName("Spark CSV Reader")
-      .getOrCreate
+    if (args.length > 0) {
+      // Spark init
+      val spark = org.apache.spark.sql.SparkSession.builder
+        .master("local[*]")
+        .appName("MostPopularCountryWhereHotelsAndSearchedFromSameCountry")
+        .getOrCreate
 
-    // Query the csv to get result
-    val mostPopularHotel = doQuery(spark, args(0))
+      // Query the csv to get result
+      val mostPopularHotel = doQuery(spark, args(0))
 
-    // Show the result
-    if (mostPopularHotel.isEmpty) {
-      println("There is no such hotel")
-    } else {
-      println("Most popular hotel: " + mostPopularHotel(0))
+      // Show the result
+      mostPopularHotel.show()
+
+      spark.stop()
     }
-    sc.stop()
+
+    println("You should specify filename")
+
   }
 
   /**
-    * Queries the csv file.
+    * Queries the csv file for most popular country.
     *
     * @param spark spark's session
     * @param file path to the csv file
     * @return row with most popular country where hotels and searched from same country
     *         or empty array if there is now such booking
+    * @throws IllegalArgumentException in case invalid filename
+    * @see Description #MostPopularCountryWhereHotelsAndSearchedFromSameCountry
     */
-  def doQuery(spark: SparkSession, file: String): Array[Row] = {
+  def doQuery(spark: SparkSession, file: String): Dataset[Row] = {
     if(file == null || file.isEmpty) {
-      return null
+      throw new IllegalArgumentException("Invalid filename: " + file)
     }
     val hotels = spark.read.format("csv").option("header", "true").option("mode", "DROPMALFORMED").option("delimiter",",").load(file)
-    val mostPopularHotel = hotels
+    hotels
       // Where booking is successful
       .where("is_booking = 1")
       // User's and hotel's country are same
@@ -53,9 +54,8 @@ object MostPopularCountryWhereHotelsAndSearchedFromSameCountry {
       .groupBy("hotel_country")
       // Count such countries
       .count().as("n")
-      // Show the result
-      .orderBy(desc("n.count")).limit(1).collect()
-    return mostPopularHotel
+      // Get top 1
+      .orderBy(desc("n.count")).limit(1)
   }
 
 }
